@@ -1,6 +1,6 @@
 package com.pns.university.student;
 
-import org.slf4j.LoggerFactory;
+import com.pns.university.utils.EmailValidation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -19,6 +19,7 @@ public class StudentService {
         this.studentRepo = studentRepo;
     }
 
+
     public List<Student> getStudentsService() {
         return studentRepo.findAll();
     };
@@ -26,8 +27,16 @@ public class StudentService {
     public Student addNewStudentService(Student student) {
         Optional<Student> optionalStudent = studentRepo.findById(student.getId());
         if(!optionalStudent.isPresent()) {
+            //validation of emailAddress
+            boolean isValidEmail = EmailValidation.isValidEmailAddress(student.getEmail());
+            if (!isValidEmail){
+                logger.info("Wrong Email Address");
+                return new Student();
+            }
+
+            Student student1 = studentRepo.save(student);
             logger.info("student added succesfully");
-            return studentRepo.save(student);
+            return student1;
         } else {
             logger.info("student already present in the Db");
             return new Student();
